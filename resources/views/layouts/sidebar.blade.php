@@ -12,7 +12,10 @@
           </div>
 
           <div class="text-wrapper">
-            <p class="profile-name">Richard V.Welsh</p>
+            <p class="profile-name">
+                {{ Auth::check() ? Auth::user()->nama : 'Tamu' }}
+            </p>
+
 
             <div class="dropdown" data-display="static">
               <a href="#" class="nav-link d-flex user-switch-dropdown-toggler"

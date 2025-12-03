@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('lokasi')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
-            // $table->string('admin_id');                 // Not Null
+            $table->foreignId('admin_id')->nullable()->constrained('admin')->nullOnDelete();
             $table->string('fotoBarang')->nullable();  // Foto boleh kosong
             $table->timestamps();                      // created_at & updated_at
         });
