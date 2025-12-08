@@ -9,6 +9,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
+use App\Exports\BarangExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BarangController extends Controller
 {
@@ -47,6 +49,7 @@ class BarangController extends Controller
             'nomorNUP'   => 'required|unique:barang,nomorNUP',
             'kondisi'    => 'required',
             'lokasi'     => 'required|string|max:500',
+            'keterangan'   => 'nullable|string',
             'fotoBarang' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ], [
             'nomorNUP.unique' => 'Nomor NUP sudah digunakan!',
@@ -66,6 +69,7 @@ class BarangController extends Controller
             'lokasi'     => $request->lokasi,
             'latitude'   => $request->latitude,
             'longitude'  => $request->longitude,
+            'keterangan'  => $request->keterangan,
             'admin_id'   => Auth::id(),
             'fotoBarang' => $fotoPath,
         ]);
@@ -91,6 +95,7 @@ class BarangController extends Controller
             'nomorNUP'   => "required|unique:barang,nomorNUP,$id,id",
             'kondisi'    => 'required',
             'fotoBarang' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+             'keterangan'   => 'nullable|string'
         ]);
 
         // Upload foto baru (jika ada)
@@ -116,6 +121,7 @@ class BarangController extends Controller
             'lokasi'     => $request->lokasi,
             'latitude'   => $request->latitude,
             'longitude'  => $request->longitude,
+            'keterangan'  => $request->keterangan,
             'fotoBarang' => $fotoPath,
         ]);
 
@@ -140,6 +146,10 @@ class BarangController extends Controller
     {
         $barang = Barang::findOrFail($id);
         return view('barang.show', compact('barang'));
+    }
+        public function exportExcel()
+    {
+        return Excel::download(new BarangExport, 'data-barang.xlsx');
     }
 
 }

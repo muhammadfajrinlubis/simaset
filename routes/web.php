@@ -17,7 +17,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
-Route::middleware('auth')->group(function () {
+Route::middleware(['mustLogin'])->group(function () {
 
     Route::get('/barang/create', [BarangController::class, 'create'])->name('barang.create');
     Route::post('/barang', [BarangController::class, 'store'])->name('barang.store');
@@ -26,5 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('barang.update');
 
     Route::delete('/barang/{id}', [BarangController::class, 'destroy'])->name('barang.destroy');
+
+    Route::get('/barang/export/excel', [BarangController::class, 'exportExcel'])
+        ->name('barang.export.excel');
+
 });
+
 Route::get('/barang/{id}', [BarangController::class, 'show'])->name('barang.show');

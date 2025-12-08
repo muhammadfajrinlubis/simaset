@@ -33,7 +33,7 @@
                     </span>
 
                     <img class="img-xs rounded-circle"
-                        src="{{ asset('assets/images/faces/face8.jpg') }}"
+                        src="{{ asset('assets/images/faces/profil.png') }}"
                         alt="Profile image">
                 </a>
 

@@ -150,6 +150,18 @@
                         @error('lokasi') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
                     </div>
+                    {{-- ========= BARIS 5 (Keterangan) ========= --}}
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Keterangan<span class="text-danger">*</span></label>
+                            <textarea name="keterangan" class="form-control" rows="3"
+                                    placeholder="Masukkan keterangan tambahan mengenai barang..." required></textarea>
+
+                            @error('keterangan')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
                     {{-- ========= BARIS 4 (1 kolom penuh) ========= --}}
                     <div class="row">
                         {{-- Foto Barang --}}

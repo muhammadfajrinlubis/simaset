@@ -24,8 +24,6 @@
         </div>
     </div>
 </div>
-
-
 <div class="row">
     {{-- ======================= FOTO BARANG ======================= --}}
     <div class="col-md-4">
@@ -114,21 +112,24 @@
                             @endif
                         </td>
                     </tr>
-
                     <tr>
                         <th class="text-muted">Dibuat Oleh</th>
                         <td>
                             {{ $barang->admin ? $barang->admin->nama : '-' }}
                         </td>
                     </tr>
-
+                    <tr>
+                    <th class="text-muted">Keterangan</th>
+                    <td style="white-space: normal; word-wrap: break-word; max-width: 350px;">
+                        {{ $barang->keterangan ?? '-' }}
+                    </td>
+                </tr>
                     <tr>
                         <th class="text-muted">Dibuat Pada</th>
                         <td>
                             {{ $barang->created_at->format('d M Y, H:i') }}
                         </td>
                     </tr>
-
                     <tr>
                         <th class="text-muted">Terakhir Diupdate</th>
                         <td>

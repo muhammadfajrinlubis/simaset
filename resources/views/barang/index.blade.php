@@ -19,10 +19,11 @@
                 @auth
                 <div class="d-flex align-items-center gap-2">
 
-                    {{-- Button Download --}}
-                    <a href="#" class="btn btn-success btn-sm px-3 d-flex align-items-center">
+                   <a href="{{ route('barang.export.excel') }}"
+                    class="btn btn-success btn-sm px-3 d-flex align-items-center">
                         <i class="fa fa-download me-2"></i> Download Data
                     </a>
+
 
                     {{-- Button Tambah --}}
                     <a href="{{ route('barang.create') }}" class="btn btn-primary btn-sm px-3 d-flex align-items-center">
@@ -95,7 +96,6 @@
                                 <th>Kondisi</th>
                                 <th>Foto</th>
                                 <th>Lokasi</th>
-                                <th>Dibuat Oleh</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -187,8 +187,6 @@
                                 @endif
 
                                 </td>
-                                 {{-- ADMIN --}}
-                                <td>{{ $b->admin ? $b->admin->nama : '-' }}</td>
                                  {{-- AKSI --}}
                                 <td class="text-center">
                                     {{-- Detail --}}

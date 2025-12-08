@@ -21,8 +21,9 @@ return new class extends Migration
             $table->string('lokasi')->nullable();
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
-            $table->foreignId('admin_id')->nullable()->constrained('admin')->nullOnDelete();
-            $table->string('fotoBarang')->nullable();  // Foto boleh kosong
+            $table->foreignId('admin_id')->constrained('admin')->cascadeOnDelete();
+            $table->string('fotoBarang');  // Foto boleh kosong
+            $table->text('keterangan');
             $table->timestamps();                      // created_at & updated_at
         });
     }
