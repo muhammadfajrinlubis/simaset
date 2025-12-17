@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('latitude')->nullable();
             $table->string('longitude')->nullable();
             $table->foreignId('admin_id')->constrained('admin')->cascadeOnDelete();
-            $table->string('fotoBarang');  // Foto boleh kosong
+            $table->text('fotoBarang');  // Foto boleh kosong
             $table->text('keterangan');
             $table->timestamps();                      // created_at & updated_at
         });

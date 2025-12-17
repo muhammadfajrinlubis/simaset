@@ -1,4 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.app', [
+    'activePage' => 'barang',
+])
 
 @section('content')
 
@@ -94,7 +96,6 @@
                                 <th>Jenis Barang</th>
                                 <th>Nomor NUP</th>
                                 <th>Kondisi</th>
-                                <th>Foto</th>
                                 <th>Lokasi</th>
                                 <th>Aksi</th>
                             </tr>
@@ -127,18 +128,7 @@
                                 </span>
 
                             </td>
-                            {{-- FOTO --}}
-                            <td class="text-center" style="min-width:130px;">
-                                @if ($b->fotoBarang)
-                                    <a href="{{ asset('storage/'.$b->fotoBarang) }}" target="_blank">
-                                        <img src="{{ asset('storage/'.$b->fotoBarang) }}"
-                                            class="img-thumbnail rounded"
-                                            style="width:100px;height:100px;object-fit:cover;cursor:pointer;">
-                                    </a>
-                                @else
-                                    <small class="text-muted">Tidak ada</small>
-                                @endif
-                                <td class="text-center align-middle">
+                            <td class="text-center align-middle">
 
                                 {{-- Lokasi: tampil turun ke bawah dan tidak melewati tabel --}}
                                 <div class="fw-bold text-dark mb-1"

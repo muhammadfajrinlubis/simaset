@@ -107,20 +107,19 @@
                     {{-- ========= BARIS 3 (2 kolom) ========= --}}
                     <div class="row">
                         {{-- Kondisi --}}
-                          <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">
-                            Kondisi Barang <span class="text-danger">*</span>
-                        </label>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                Kondisi Barang <span class="text-danger">*</span>
+                            </label>
 
-                        <select name="kondisi" class="form-select" required>
-                            <option value="" disabled selected>-- Pilih Kondisi --</option>
-                            <option value="Baru">Baru</option>
-                            <option value="Berfungsi">Berfungsi</option>
-                            <option value="Rusak">Rusak</option>
-                        </select>
-                    </div>
-
-                      {{-- Lokasi Otomatis / Manual --}}
+                            <select name="kondisi" class="form-select" required>
+                                <option value="" disabled selected>-- Pilih Kondisi --</option>
+                                <option value="Baru">Baru</option>
+                                <option value="Berfungsi">Berfungsi</option>
+                                <option value="Rusak">Rusak</option>
+                            </select>
+                        </div>
+                    {{-- Lokasi Otomatis / Manual --}}
                     <div class="mb-3">
                         <label class="fw-bold">Lokasi Barang <span class="text-danger">*</span></label><br>
 
@@ -137,7 +136,6 @@
                             <button type="button" class="btn btn-danger ms-2" onclick="resetLokasi()">
                                 <i class="mdi mdi-map-marker-off"></i> Reset Lokasi
                             </button>
-
                         </div>
 
                         <input type="hidden" name="lokasi" id="lokasi_hidden">
@@ -162,30 +160,42 @@
                             @enderror
                         </div>
                     </div>
-                    {{-- ========= BARIS 4 (1 kolom penuh) ========= --}}
+                    {{-- ========= BARIS FOTO (upload 4 foto saja) ========= --}}
                     <div class="row">
-                        {{-- Foto Barang --}}
                         <div class="col-md-12 mb-3">
-                            <label class="form-label fw-bold">Foto Barang<span class="text-danger">* </span></label>
+                            <label class="form-label fw-bold">
+                                Foto Barang (wajib 4 foto)
+                                <span class="text-danger">*</span>
+                            </label>
 
-                            <div class="border rounded p-3 text-center bg-light"
-                                 style="cursor:pointer;"
-                                 onclick="document.getElementById('fotoBarang').click();">
+                            <div class="col-md-12 mb-3">
 
-                                <img id="previewImage"
-                                     src="https://via.placeholder.com/150?text=Preview"
-                                     class="img-fluid mb-2"
-                                     style="max-height:160px; border-radius:6px; object-fit:cover;">
+                                <!-- PREVIEW FOTO -->
+                                <div id="previewContainer" class="d-flex gap-3 flex-wrap mb-3"></div>
 
-                                <div>
-                                    <i class="fa fa-upload text-primary"></i>
-                                    <p class="mt-2 mb-0 text-muted">Klik untuk memilih foto barang</p>
+                                <!-- WARNING -->
+                                <div id="photoAlert"
+                                    class="text-danger fw-bold mb-2"
+                                    style="display:none;">
+                                    Anda wajib mengupload tepat 4 foto!
                                 </div>
-                            </div>
 
-                            <input type="file" name="fotoBarang" id="fotoBarang"
-                                   class="d-none" accept="image/*"
-                                   onchange="previewFoto(this)">
+                                <!-- TOMBOL UPLOAD -->
+                                <div id="uploadArea"
+                                    class="border rounded p-3 text-center bg-light"
+                                    style="cursor:pointer; width:160px;"
+                                    onclick="document.getElementById('fotoBarang').click();">
+
+                                    <i class="fa fa-upload text-primary"></i>
+                                    <p class="mt-2 mb-0 text-muted">Tambah Foto</p>
+                                </div>
+
+                                <!-- INPUT FILE (MULTIPLE) -->
+                                <input type="file" id="fotoBarang" class="d-none" accept="image/*" multiple onchange="addPhotos(event)">
+
+                                <!-- INPUT HIDDEN UNTUK SETIAP FOTO -->
+                                <div id="hiddenInputsContainer"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -204,275 +214,251 @@
     </div>
 </div>
 
-{{-- ============== SCRIPT PREVIEW FOTO ============== --}}
 <script>
-function previewFoto(input) {
-    if (input.files && input.files[0]) {
-        let reader = new FileReader();
-        reader.onload = function (e) {
-            document.getElementById('previewImage').src = e.target.result;
-        }
-        reader.readAsDataURL(input.files[0]);
+// Penampung foto dalam bentuk File objects
+let photos = [];
+
+// Tambah foto
+function addPhotos(event) {
+    const files = event.target.files;
+
+    if (photos.length + files.length > 4) {
+        alert("Maksimal 4 foto!");
+        event.target.value = '';
+        return;
+    }
+
+    [...files].forEach(file => {
+        photos.push(file);
+    });
+
+    renderPreview();
+    createHiddenInputs();
+    checkPhotoWarning();
+
+    event.target.value = '';
+}
+
+// Tampilkan preview
+function renderPreview() {
+    const container = document.getElementById("previewContainer");
+    container.innerHTML = "";
+
+    photos.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const wrapper = document.createElement("div");
+            wrapper.style.position = "relative";
+
+            wrapper.innerHTML = `
+                <img src="${e.target.result}"
+                     class="rounded border"
+                     width="120" height="120"
+                     style="object-fit:cover;">
+
+                <button type="button"
+                        onclick="removePhoto(${index})"
+                        class="btn btn-sm btn-danger"
+                        style="position:absolute; top:5px; right:5px;">
+                    ✕
+                </button>
+            `;
+
+            container.appendChild(wrapper);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Buat input hidden untuk setiap foto
+function createHiddenInputs() {
+    const container = document.getElementById("hiddenInputsContainer");
+    container.innerHTML = "";
+
+    const dataTransfer = new DataTransfer();
+
+    photos.forEach(file => {
+        dataTransfer.items.add(file);
+    });
+
+    const newInput = document.createElement('input');
+    newInput.type = 'file';
+    newInput.name = 'fotoBarang[]';
+    newInput.multiple = true;
+    newInput.style.display = 'none';
+    newInput.files = dataTransfer.files;
+
+    container.appendChild(newInput);
+}
+
+// Hapus foto
+function removePhoto(index) {
+    photos.splice(index, 1);
+    renderPreview();
+    createHiddenInputs();
+    checkPhotoWarning();
+}
+
+// Tampilkan / hilangkan warning
+function checkPhotoWarning() {
+    const alertBox = document.getElementById("photoAlert");
+
+    if (photos.length < 4) {
+        alertBox.style.display = "block";
+        alertBox.textContent = "Foto belum 4, silakan upload 4 foto!";
+    } else {
+        alertBox.style.display = "none";
     }
 }
-</script>
-<script>
-// Saat halaman dibuka → ambil lokasi otomatis
-document.addEventListener("DOMContentLoaded", function () {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-    } else {
-        alert("Browser tidak mendukung GPS.");
+
+// Cegah submit jika foto belum 4
+document.addEventListener('submit', function(e) {
+    if (e.target.id === 'formBarang') {
+        if (photos.length !== 4) {
+            e.preventDefault();
+            checkPhotoWarning();
+            return false;
+        }
     }
 });
-
-function successCallback(position) {
-    let lat = position.coords.latitude;
-    let lon = position.coords.longitude;
-
-    document.getElementById("latitude").value = lat;
-    document.getElementById("longitude").value = lon;
-
-    // Ambil alamat dari API Reverse Geocoding (OpenStreetMap)
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("alamat").value = data.display_name;
-        })
-        .catch(err => {
-            console.log(err);
-            document.getElementById("alamat").value = "Gagal mengambil alamat";
-        });
-}
-
-function errorCallback(error) {
-    console.log(error);
-    alert("Tidak bisa mendeteksi lokasi. Pastikan GPS aktif & izinkan lokasi.");
-}
 </script>
 
 <script>
-function setLokasiMode() {
-    let mode = document.querySelector('input[name="mode_lokasi"]:checked').value;
 
-    if (mode === "otomatis") {
-        document.getElementById("alamat_otomatis").classList.remove("d-none");
-        document.getElementById("alamat_manual").classList.add("d-none");
+// Helper aman
+function get(id) { return document.getElementById(id); }
 
-        // aktifkan kembali lokasi otomatis
-        ambilLokasiOtomatis();
-    } else {
-        document.getElementById("alamat_otomatis").classList.add("d-none");
-        document.getElementById("alamat_manual").classList.remove("d-none");
+// Reset lokasi otomatis
+function resetLokasi() {
 
-        // kosongkan hidden fields
-        document.getElementById("latitude").value = "";
-        document.getElementById("longitude").value = "";
-    }
-}
+    // Kosongkan input
+    get("alamat_otomatis").value = "Lokasi telah di-reset. Silakan ambil ulang.";
+    get("lokasi_hidden").value = "";
+    get("latitude").value = "";
+    get("longitude").value = "";
 
-function ambilLokasiOtomatis() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function (pos) {
-                let lat = pos.coords.latitude;
-                let lon = pos.coords.longitude;
+    // Tambahkan warna merah sebentar sebagai efek visual
+    get("alamat_otomatis").classList.add("bg-warning");
 
-                document.getElementById("latitude").value = lat;
-                document.getElementById("longitude").value = lon;
+    setTimeout(() => {
+        get("alamat_otomatis").classList.remove("bg-warning");
+    }, 1000);
 
-                // Reverse geocode untuk mendapatkan alamat
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        document.getElementById("alamat_otomatis").value = data.display_name;
-                    })
-                    .catch(() => {
-                        document.getElementById("alamat_otomatis").value = "Gagal mengambil alamat";
-                    });
-            },
-            function (err) {
-                alert("Tidak bisa mengambil lokasi otomatis.");
-            }
-        );
-    }
-}
-
-// Jalankan otomatis saat halaman load
-document.addEventListener("DOMContentLoaded", ambilLokasiOtomatis);
-</script>
-<script>
-function setLokasiMode() {
-    let mode = document.querySelector('input[name="mode_lokasi"]:checked').value;
-
-    if (mode === "otomatis") {
-        document.getElementById("box_otomatis").classList.remove("d-none");
-        document.getElementById("alamat_manual").classList.add("d-none");
-        ambilLokasiOtomatis();
-    } else {
-        document.getElementById("box_otomatis").classList.add("d-none");
-        document.getElementById("alamat_manual").classList.remove("d-none");
-
-        document.getElementById("latitude").value = "";
-        document.getElementById("longitude").value = "";
-    }
-}
-function setLokasiMode() {
-    let mode = document.querySelector('input[name="mode_lokasi"]:checked').value;
-
-    const otomatis = document.getElementById('box_otomatis');
-    const manual = document.getElementById('alamat_manual');
-
-    if (mode === "otomatis") {
-        otomatis.classList.remove('d-none');
-        manual.classList.add('d-none');
-
-        // Reset manual
-        manual.value = "";
-
-        // Reset hidden
-        document.getElementById("lokasi_hidden").value = "";
-        document.getElementById("latitude").value = "";
-        document.getElementById("longitude").value = "";
-
-    } else {
-        otomatis.classList.add('d-none');
-        manual.classList.remove('d-none');
-
-        // Reset otomatis
-        document.getElementById("alamat_otomatis").value = "";
-
-        // Reset hidden
-        document.getElementById("lokasi_hidden").value = "";
-        document.getElementById("latitude").value = "";
-        document.getElementById("longitude").value = "";
-    }
+    // Ambil ulang lokasi GPS setelah reset
+    setTimeout(() => {
+        ambilLokasiAkurat();
+    }, 800);
 }
 
 
-function ambilLokasiOtomatis() {
+// =========== FUNGSI AMBIL LOKASI AKURAT (PUNYAMU) ===========
+function ambilLokasiAkurat() {
+
     if (!navigator.geolocation) {
         alert("Browser tidak mendukung GPS.");
         return;
     }
+
+    const options = {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+    };
 
     navigator.geolocation.getCurrentPosition(
         async function(pos) {
+
             let lat = pos.coords.latitude;
             let lon = pos.coords.longitude;
+            let accuracy = pos.coords.accuracy;
 
-            document.getElementById("latitude").value = lat;
-            document.getElementById("longitude").value = lon;
+            console.log("Akurasi GPS: " + accuracy + " meter");
 
-            let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            get("latitude").value = lat;
+            get("longitude").value = lon;
 
-            let response = await fetch(url);
-            let data = await response.json();
+            if (accuracy > 50) {
+                console.warn("Akurasi buruk, mencoba lagi...");
+                setTimeout(ambilLokasiAkurat, 2000);
+            }
 
-            let alamat = data.display_name || "Alamat tidak ditemukan";
+            let url =
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
 
-            document.getElementById("alamat_otomatis").value = alamat;
-            document.getElementById("lokasi_hidden").value = alamat;
+            try {
+                let res = await fetch(url);
+                let data = await res.json();
+
+                let alamat = data.display_name || "Alamat tidak ditemukan";
+
+                get("alamat_otomatis").value = alamat;
+                get("lokasi_hidden").value = alamat;
+
+            } catch (e) {
+                get("alamat_otomatis").value = "Gagal mengambil alamat";
+            }
         },
-        function() {
-            alert("Tidak bisa mengambil lokasi. Pastikan GPS aktif.");
-        }
+
+        function(error) {
+            console.error(error);
+
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("Izin lokasi ditolak. Aktifkan GPS & izinkan lokasi.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Lokasi tidak tersedia.");
+                    break;
+                case error.TIMEOUT:
+                    alert("Timeout pengambilan lokasi.");
+                    break;
+                default:
+                    alert("Terjadi kesalahan mengambil lokasi.");
+            }
+        },
+
+        options
     );
 }
 
-document.addEventListener("DOMContentLoaded", ambilLokasiOtomatis);
-</script>
-
-<script>
-// ===========================
-// RESET & MODE SWITCH
-// ===========================
-
 function setLokasiMode() {
-    const mode = document.querySelector('input[name="mode_lokasi"]:checked').value;
+    let mode = document.querySelector('input[name="mode_lokasi"]:checked').value;
 
-    const otomatisBox = document.getElementById("box_otomatis");
-    const manualInput = document.getElementById("alamat_manual");
+    if (mode === "manual") {
+        // Tampilkan input manual
+        get("alamat_manual").classList.remove("d-none");
+        get("alamat_manual").required = true;
 
-    if (mode === "otomatis") {
-        otomatisBox.classList.remove("d-none");
-        manualInput.classList.add("d-none");
+        // Sembunyikan lokasi otomatis
+        get("box_otomatis").classList.add("d-none");
 
-        // Reset manual
-        manualInput.value = "";
+        // Kosongkan lokasi otomatis
+        get("lokasi_hidden").value = "";
+        get("latitude").value = "";
+        get("longitude").value = "";
 
-        // Ambil lokasi ulang
-        ambilLokasiOtomatis();
-    }
-    else {
-        otomatisBox.classList.add("d-none");
-        manualInput.classList.remove("d-none");
+        // Saat mengetik manual → kirim ke hidden
+        get("alamat_manual").addEventListener("input", function() {
+            get("lokasi_hidden").value = this.value;
+        });
 
-        // Reset otomatis
-        document.getElementById("alamat_otomatis").value = "";
+    } else {
+        // Mode otomatis
+        get("alamat_manual").classList.add("d-none");
+        get("alamat_manual").required = false;
 
-        // Reset hidden fields
-        document.getElementById("lokasi_hidden").value = "";
-        document.getElementById("latitude").value = "";
-        document.getElementById("longitude").value = "";
+        get("box_otomatis").classList.remove("d-none");
+
+        // Ambil ulang lokasi otomatis
+        ambilLokasiAkurat();
     }
 }
 
-// ===========================
-// AMBIL LOKASI OTOMATIS
-// ===========================
 
-function ambilLokasiOtomatis() {
-    if (!navigator.geolocation) {
-        alert("Browser tidak mendukung GPS.");
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(async function(pos) {
-        let lat = pos.coords.latitude;
-        let lon = pos.coords.longitude;
-
-        // Simpan ke hidden field
-        document.getElementById("latitude").value = lat;
-        document.getElementById("longitude").value = lon;
-
-        // Ambil alamat dari Nominatim
-        let url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-
-        let response = await fetch(url);
-        let data = await response.json();
-
-        let alamat = data.display_name || "Alamat tidak ditemukan";
-
-        // Tampilkan alamat otomatis
-        document.getElementById("alamat_otomatis").value = alamat;
-
-        // Simpan ke hidden lokasi (untuk database)
-        document.getElementById("lokasi_hidden").value = alamat;
-
-    }, function() {
-        alert("Tidak bisa mengambil lokasi. Pastikan GPS aktif.");
-    });
-}
-function resetLokasi() {
-        document.getElementById("alamat_otomatis").value = "";
-        document.getElementById("lokasi_hidden").value = "";
-        document.getElementById("latitude").value = "";
-        document.getElementById("longitude").value = "";
-
-        alert("Lokasi telah direset!");
-
-        // Jika mode otomatis → ambil lokasi baru lagi
-        let mode = document.querySelector('input[name="mode_lokasi"]:checked').value;
-        if (mode === "otomatis") {
-            ambilLokasiOtomatis();
-        }
-    }
-
-    // Jalankan otomatis saat halaman dibuka
-    document.addEventListener("DOMContentLoaded", function() {
-        ambilLokasiOtomatis();
-    });
+// Jalankan saat halaman dibuka
+document.addEventListener("DOMContentLoaded", function () {
+    ambilLokasiAkurat();
+});
 
 </script>
 

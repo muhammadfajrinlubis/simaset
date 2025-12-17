@@ -56,7 +56,7 @@ class LoginController extends Controller
         Auth::logout();
 
         return redirect('/')
-            ->with('success', 'Berhasil logout!');
+            ->with('logout_success', 'Berhasil logout!');
     }
 
 }

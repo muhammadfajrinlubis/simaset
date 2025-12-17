@@ -1,12 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Barang\BarangController;
 
-Route::get('/', function () {
-    return view('dashboard');
-});
+Route::get('/', [AdminController::class, 'index'])->name('dashboard');
 
 // LOGIN
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -29,6 +28,13 @@ Route::middleware(['mustLogin'])->group(function () {
 
     Route::get('/barang/export/excel', [BarangController::class, 'exportExcel'])
         ->name('barang.export.excel');
+
+    Route::get('/auth/{id}/edit-password', [AdminController::class, 'editPassword'])
+    ->name('admin.editPassword');
+
+    // Proses update password
+    Route::post('/auth/{id}/update-password', [AdminController::class, 'updatePassword'])
+        ->name('admin.updatePassword');
 
 });
 
